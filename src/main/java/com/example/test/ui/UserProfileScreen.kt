@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.test.PlaygroundRepository
 import com.example.test.R
 import com.example.test.UserProfile
 import com.example.test.ui.theme.TestTheme
@@ -64,7 +65,7 @@ fun UserProfileScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun UserProfileScreenPreview() {
-    TestTheme() {
+    TestTheme {
         UserProfileScreen(
             profile = UserProfile.DEFAULT,
             onEditClick = { }
@@ -155,41 +156,49 @@ fun UserProfileContent(
             )
         }
 
-        PlaygroundItem(
-            showImage = showImages,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        PlaygroundItem(showImage = showImages, modifier = Modifier.padding(top = 16.dp))
-        PlaygroundItem(showImage = showImages, modifier = Modifier.padding(top = 16.dp))
+        PlaygroundRepository.samplePlaygrounds.forEach {
+            playground -> PlaygroundItem(
+                showImage = showImages,
+                modifier = Modifier.padding(top = 16.dp),
+                name = playground.name,
+                address = playground.address,
+                features = playground.features,
+                imageRes = playground.imageRes
+            )
+        }
     }
 }
 
 @Composable
 fun PlaygroundItem(
     showImage: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    name: String,
+    address: String,
+    features: String,
+    imageRes: Int
 ) {
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         if (showImage) {
             Image(
-                painter = painterResource(R.drawable.na_krejcarku),
-                contentDescription = "Playground Na Krejcarku",
+                painter = painterResource(imageRes),
+                contentDescription = "Playground $name",
                 modifier = Modifier.height(80.dp),
             )
         }
         Column(modifier = Modifier.weight(1f)) {
             SingleLineText(
-                text = "Na Krejcarku",
+                text = name,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(start = 16.dp),
             )
             SingleLineText(
-                text = "Za Žižkovskou vozovnou 2716/19",
+                text = address,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 16.dp),
             )
             SingleLineText(
-                text = "Skluzavka, houpačka, pískoviště",
+                text = features,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 16.dp),
             )
