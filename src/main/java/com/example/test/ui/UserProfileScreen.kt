@@ -134,6 +134,10 @@ fun UserProfileContent(
             text = "${profile.numberOfKids} kids",
             style = MaterialTheme.typography.titleMedium,
         )
+        Text(
+            text = "Notifications: ${profile.notificationFrequency.displayName()}",
+            style = MaterialTheme.typography.bodyMedium,
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
