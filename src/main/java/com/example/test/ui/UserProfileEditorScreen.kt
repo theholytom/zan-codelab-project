@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,9 +48,9 @@ fun UserProfileEditorScreen(
     modifier: Modifier = Modifier,
 ) {
 
-    var editedName by remember { mutableStateOf(profile.name) }
-    var editedSurname by remember { mutableStateOf(profile.surname) }
-    var editedNumberOfKids by remember { mutableStateOf(profile.numberOfKids) }
+    var editedName by rememberSaveable { mutableStateOf(profile.name) }
+    var editedSurname by rememberSaveable { mutableStateOf(profile.surname) }
+    var editedNumberOfKids by rememberSaveable { mutableStateOf(profile.numberOfKids) }
 
     var editedFrequency by remember { mutableStateOf(profile.notificationFrequency) }
 
