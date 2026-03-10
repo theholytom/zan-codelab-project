@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.Navigation
+import cz.cvut.fel.zan.practice4nav.ui.MainNavGraph
 import cz.cvut.fel.zan.practice4nav.ui.OnboardingNavGraph
 import cz.cvut.fel.zan.practice4nav.ui.theme.TestTheme
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
              TestTheme(){
-                OnboardingNavGraph()
+                MainNavGraph()
             }
         }
     }
