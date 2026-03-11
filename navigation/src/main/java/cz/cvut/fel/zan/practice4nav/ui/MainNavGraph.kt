@@ -23,13 +23,11 @@ fun MainNavGraph() {
                 currentDestination = currentDestination,
                 onNavigate = { route ->
                     navController.navigate(route) {
-                        // Pop everything up to (and including) the start destination,
-                        // then re-launch it. This means pressing back from any tab
-                        // first returns to Home, and a second back exits the app.
                         popUpTo(navController.graph.findStartDestination().id) {
-                            inclusive = false   // keep Home in the stack
+                            saveState = true    // ← save the popped back stack
                         }
                         launchSingleTop = true
+                        restoreState = true     // ← restore the saved stack when returning
                     }
                 }
             )
