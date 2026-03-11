@@ -9,11 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,9 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PlaygroundScreen(onItemClick: (Int) -> Unit = {}) {
-    var counter by rememberSaveable { mutableIntStateOf(0) }
-
+fun PlaygroundScreen(onItemClick: (Int) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,18 +40,6 @@ fun PlaygroundScreen(onItemClick: (Int) -> Unit = {}) {
     ) {
         Text("Playground 🛝", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Counter — its value will reveal whether state is saved or recreated
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text("Tab counter: $counter", style = MaterialTheme.typography.bodyLarge)
-            Button(onClick = { counter++ }) { Text("+1") }
-        }
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-
         (1..5).forEach { id ->
             ListItem(
                 headlineContent = { Text("Item #$id") },
@@ -54,6 +47,41 @@ fun PlaygroundScreen(onItemClick: (Int) -> Unit = {}) {
                 modifier = Modifier.clickable { onItemClick(id) },
             )
             HorizontalDivider()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ItemDetailScreen(
+    itemId: Int,
+    onBack: () -> Unit,
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Item #$itemId") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
+                    }
+                },
+            )
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "Detail for item $itemId",
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
     }
 }

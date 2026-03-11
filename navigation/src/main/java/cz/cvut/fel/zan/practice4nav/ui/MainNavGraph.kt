@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 
 @Composable
 fun MainNavGraph() {
@@ -39,7 +40,23 @@ fun MainNavGraph() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable<MainHome>     { HomeScreen() }
-            composable<MainPlayground>     { PlaygroundScreen() }
+
+            composable<MainPlayground> {
+                PlaygroundScreen(
+                    onItemClick = { id ->
+                        navController.navigate(PlaygroundDetail(itemId = id))
+                    }
+                )
+            }
+
+            composable<PlaygroundDetail> { backStackEntry ->
+                val detail: PlaygroundDetail = backStackEntry.toRoute()   // type-safe extraction
+                ItemDetailScreen(
+                    itemId = detail.itemId,
+                    onBack = { navController.navigateUp() },
+                )
+            }
+
             composable<MainSettings> { SettingsScreen() }
         }
     }

@@ -19,6 +19,9 @@ data object MainPlayground
 @Serializable
 data object MainSettings
 
+@Serializable
+data class PlaygroundDetail(val itemId: Int)
+
 data class NavBarItem(
     val route: Any,
     val label: String,
