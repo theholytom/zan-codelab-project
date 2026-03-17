@@ -1,0 +1,142 @@
+[
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/xml_data_extraction_rules.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_done_all_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/done_all_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/xml_backup_rules.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_logout_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/logout_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_person_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/person_24px.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_logout_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/logout_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_done_all_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/done_all_24px.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_close_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/close_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_person_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/person_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_na_krejcarku.jpg.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/na_krejcarku.jpg"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable-xxhdpi_profile_placeholder.png.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable-xxhdpi/profile_placeholder.png"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_swing_icon.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/swing_icon.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable-xxxhdpi_profile_placeholder.png.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable-xxxhdpi/profile_placeholder.png"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_cancel_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/cancel_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_ic_launcher_background.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable-xhdpi_profile_placeholder.png.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable-xhdpi/profile_placeholder.png"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_cancel_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/cancel_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_close_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/close_24px.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_baseline_edit_24.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/baseline_edit_24.xml"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable-hdpi_profile_placeholder.png.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable-hdpi/profile_placeholder.png"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-debug-45:/drawable_save_24px.xml.flat",
+        "source": "/Users/tomholy/.gradle/daemon/9.2.1/com.example.test.app-main-47:/drawable/save_24px.xml"
+    },
+    {
+        "merged": "com.example.test.app-debug-45:/drawable_save_24px.xml.flat",
+        "source": "com.example.test.app-main-47:/drawable/save_24px.xml"
+    }
+]

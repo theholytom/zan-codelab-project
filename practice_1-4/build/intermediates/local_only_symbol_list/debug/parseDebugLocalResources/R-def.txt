@@ -1,0 +1,27 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color purple_200
+color purple_500
+color purple_700
+color teal_200
+color teal_700
+color white
+drawable baseline_edit_24
+drawable cancel_24px
+drawable close_24px
+drawable done_all_24px
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable logout_24px
+drawable na_krejcarku
+drawable person_24px
+drawable profile_placeholder
+drawable save_24px
+drawable swing_icon
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Theme.Test
+xml backup_rules
+xml data_extraction_rules
