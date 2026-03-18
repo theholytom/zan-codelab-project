@@ -22,13 +22,14 @@ data class Playground(
     val equipment: List<Equipment> = emptyList(),
 ) : Parcelable
 
+@Parcelize
 data class PlannedVisit(
     val id: Long,
     val playground: Playground,
     val dateMillis: Long,
     val hour: Int,
     val minute: Int,
-)
+) : Parcelable
 
 // ── Sample data ───────────────────────────────────────────────────────────────
 

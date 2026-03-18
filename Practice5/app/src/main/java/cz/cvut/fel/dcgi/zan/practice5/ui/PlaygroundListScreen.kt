@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
@@ -27,19 +28,15 @@ fun PlaygroundListScreen(
     modifier: Modifier = Modifier,
 ) {
     // ── Search query ──────────────────────────────────────────────────────────
-    // TODO (Step 1.1): Type text, rotate the device — what happens?
-    // TODO (Step 1.2): Replace 'remember' with 'rememberSaveable' and rotate again.
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
 
     // ── Tab / filter state ────────────────────────────────────────────────────
-    // TODO (Step 1.3): Same bug — replace 'remember' with 'rememberSaveable'.
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("All", "Favourites")
+    // selectedTabIndex = selectedTabIndex.coerceIn(0, tabs.lastIndex)
 
     // ── Equipment filter ──────────────────────────────────────────────────────
-    // TODO (Step 2.1): Try storing Set<Equipment> with plain remember — then rotate.
-    // TODO (Step 2.2 / 2.3): Fix with @Parcelize wrapper or a custom Saver.
-    var selectedEquipment by remember { mutableStateOf(emptySet<Equipment>()) }
+    var selectedEquipment by rememberSaveable { mutableStateOf(setOf(Equipment.SLIDE)) }
 
     // ── Derived list ──────────────────────────────────────────────────────────
     val displayedPlaygrounds = playgrounds
@@ -61,20 +58,38 @@ fun PlaygroundListScreen(
         )
 
         // ── Tab row (Step 1.3) ────────────────────────────────────────────────
-        TabRow(selectedTabIndex = selectedTabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+            tabs.forEachIndexed { index, label ->
+                SegmentedButton(
                     selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = { Text(title) },
+                    onClick  = { selectedTabIndex = index },
+                    shape    = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
+                    label    = { Text(label) },
                 )
             }
         }
 
-        // TODO (Step 3): Replace TabRow above with SingleChoiceSegmentedButtonRow
-
         // ── Filter chips (Step 4) ─────────────────────────────────────────────
-        // TODO (Step 4): Add a LazyRow of FilterChip for each Equipment value here
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        ) {
+            items(Equipment.entries) { item ->
+                FilterChip(
+                    selected = item in selectedEquipment,
+                    onClick  = {
+                        selectedEquipment = if (item in selectedEquipment)
+                            selectedEquipment - item
+                        else
+                            selectedEquipment + item
+                    },
+                    label = { Text(item.label()) },
+                    leadingIcon = if (item in selectedEquipment) {
+                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                    } else null,
+                )
+            }
+        }
 
         // ── List ──────────────────────────────────────────────────────────────
         LazyColumn(
