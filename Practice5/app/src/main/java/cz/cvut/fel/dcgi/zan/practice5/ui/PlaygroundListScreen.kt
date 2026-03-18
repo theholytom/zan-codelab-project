@@ -1,5 +1,6 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,8 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import cz.cvut.fel.dcgi.zan.practice5.R
+import kotlinx.coroutines.delay
 
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -36,6 +41,7 @@ fun PlaygroundListScreen(
     // ── Tab / filter state ────────────────────────────────────────────────────
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("All", "Favourites")
+    var isLoading by remember { mutableStateOf(true) }
 
     // ── Equipment filter ──────────────────────────────────────────────────────
     var selectedEquipment by rememberSaveable { mutableStateOf(setOf(Equipment.SLIDE)) }
@@ -45,6 +51,38 @@ fun PlaygroundListScreen(
         .filter { it.name.contains(query, ignoreCase = true) }
         .filter { if (selectedTabIndex == 1) it.isFavourite else true }
         .filter { pg -> selectedEquipment.isEmpty() || selectedEquipment.all { it in pg.equipment } }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> Log.d("Lifecycle", "PlaygroundList: resumed")
+                Lifecycle.Event.ON_PAUSE -> Log.d("Lifecycle", "PlaygroundList: paused")
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            Log.d("Lifecycle", "PlaygroundList: disposed — observer removed")
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        Log.d("LaunchedEffect", "launched with isLoading=$isLoading")
+        delay(1500)
+        isLoading = false
+    }
+
+    if (isLoading) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        // SegmentedButtonRow + FilterChips + LazyColumn
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
 

@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlansScreen(
     visits: List<PlannedVisit>,
@@ -28,6 +29,9 @@ fun PlansScreen(
 ) {
     // TODO (Step 6): Replace AlertDialog deletion with Snackbar + Undo
      val scope = rememberCoroutineScope()
+
+    var sheetPlayground by remember { mutableStateOf<Playground?>(null) }
+    val sheetState = rememberModalBottomSheetState()
 
     Column(modifier = modifier.fillMaxSize()) {
 
@@ -60,15 +64,24 @@ fun PlansScreen(
                                     onRestoreVisit(visit)
                                 }
                             }
-                        }
-                        // TODO (Step 5): Pass onCardClick = { showBottomSheet for this visit }
+                        },
+                        onCardClick = { sheetPlayground = visit.playground }
                     )
                 }
             }
         }
     }
 
-    // TODO (Step 5): Add ModalBottomSheet here showing PlaygroundDetailContent
+    sheetPlayground?.let { pg ->
+        ModalBottomSheet(
+            onDismissRequest = { sheetPlayground = null },
+            sheetState = sheetState,
+        ) {
+            PlaygroundDetailContent(playground = pg)
+            Spacer(Modifier.height(32.dp)) // padding above nav bar
+        }
+    }
+
 }
 
 // ── Plan card ─────────────────────────────────────────────────────────────────
