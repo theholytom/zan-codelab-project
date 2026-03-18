@@ -14,6 +14,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -23,9 +24,10 @@ fun PlansScreen(
     snackbarHostState: SnackbarHostState,
     onDeleteVisit: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    onRestoreVisit: (PlannedVisit) -> Unit
 ) {
     // TODO (Step 6): Replace AlertDialog deletion with Snackbar + Undo
-    // val scope = rememberCoroutineScope()
+     val scope = rememberCoroutineScope()
 
     Column(modifier = modifier.fillMaxSize()) {
 
@@ -45,7 +47,20 @@ fun PlansScreen(
                 items(visits, key = { it.id }) { visit ->
                     PlanCard(
                         visit = visit,
-                        onDeleteClick = { onDeleteVisit(visit.id) },
+                        onDeleteClick = {
+                            val removed = visits.find { it.id == visit.id }
+                            onDeleteVisit(visit.id)                        // remove from list
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message     = "Visit deleted",
+                                    actionLabel = "Undo",
+                                    duration    = SnackbarDuration.Short,
+                                )
+                                if (result == SnackbarResult.ActionPerformed && removed != null) {
+                                    onRestoreVisit(visit)
+                                }
+                            }
+                        }
                         // TODO (Step 5): Pass onCardClick = { showBottomSheet for this visit }
                     )
                 }
@@ -66,7 +81,7 @@ fun PlanCard(
     modifier: Modifier = Modifier,
 ) {
     // TODO (Step 4): Move delete confirmation from direct call to AlertDialog
-    var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
+
 
     Card(
         onClick = { onCardClick?.invoke() },
@@ -99,31 +114,14 @@ fun PlanCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            IconButton(onClick = { showConfirmDialog = true }) {
+            IconButton(onClick = onDeleteClick) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete visit")
             }
         }
     }
 
     // ── Confirm delete dialog (Step 4) ────────────────────────────────────────
-    if (showConfirmDialog) {
-        AlertDialog(
-            onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Delete visit?") },
-            text = {
-                Text("Remove the planned visit to ${visit.playground.name}?")
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showConfirmDialog = false
-                    onDeleteClick()
-                }) { Text("Delete") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showConfirmDialog = false }) { Text("Cancel") }
-            },
-        )
-    }
+
 }
 
 // ── Playground detail content (reusable, used in ModalBottomSheet) ────────────

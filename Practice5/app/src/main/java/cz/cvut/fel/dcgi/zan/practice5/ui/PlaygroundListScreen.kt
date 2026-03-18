@@ -1,6 +1,5 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -37,7 +36,6 @@ fun PlaygroundListScreen(
     // ── Tab / filter state ────────────────────────────────────────────────────
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
     val tabs = listOf("All", "Favourites")
-    // selectedTabIndex = selectedTabIndex.coerceIn(0, tabs.lastIndex)
 
     // ── Equipment filter ──────────────────────────────────────────────────────
     var selectedEquipment by rememberSaveable { mutableStateOf(setOf(Equipment.SLIDE)) }
@@ -105,9 +103,7 @@ fun PlaygroundListScreen(
                     playground = playground,
                     onCardClick = { onNavigateToDetail(playground.id) },
                     onFavouriteClick = { onToggleFavourite(playground.id) },
-                    onPlanVisit = { playground, dateMillis, hour, minute ->
-                        onPlanVisit(playground, dateMillis, hour, minute)
-                    }
+                    onPlanVisit = onPlanVisit
                 )
             }
         }

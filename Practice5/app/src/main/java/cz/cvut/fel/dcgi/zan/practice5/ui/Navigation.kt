@@ -39,4 +39,8 @@ class AppState {
     fun removeVisit(id: Long) {
         visits.removeIf { it.id == id }
     }
+
+    fun restoreVisit(visit: PlannedVisit) {
+        visits.add(visit)
+    }
 }

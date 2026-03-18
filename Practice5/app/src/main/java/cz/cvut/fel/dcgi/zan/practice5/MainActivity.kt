@@ -101,6 +101,7 @@ fun PlaygroundApp() {
                     visits = appState.visits,
                     snackbarHostState = snackbarHostState,
                     onDeleteVisit = appState::removeVisit,
+                    onRestoreVisit = {visit -> appState.restoreVisit(visit)}
                 )
             }
             composable<PlaygroundDetailRoute> { entry ->
