@@ -1,5 +1,6 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,8 +15,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import cz.cvut.fel.dcgi.zan.practice5.R
 
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -26,6 +29,7 @@ fun PlaygroundListScreen(
     onNavigateToDetail: (Long) -> Unit,
     onToggleFavourite: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    onPlanVisit: (Playground, Long, Int, Int) -> Unit
 ) {
     // ── Search query ──────────────────────────────────────────────────────────
     var query by rememberSaveable { mutableStateOf("") }
@@ -101,6 +105,9 @@ fun PlaygroundListScreen(
                     playground = playground,
                     onCardClick = { onNavigateToDetail(playground.id) },
                     onFavouriteClick = { onToggleFavourite(playground.id) },
+                    onPlanVisit = { playground, dateMillis, hour, minute ->
+                        onPlanVisit(playground, dateMillis, hour, minute)
+                    }
                 )
             }
         }
@@ -115,7 +122,11 @@ fun PlaygroundCard(
     onCardClick: () -> Unit,
     onFavouriteClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onPlanVisit: (Playground, Long, Int, Int) -> Unit
 ) {
+
+    var showPlanDialog by rememberSaveable { mutableStateOf(false) }
+
     Card(
         onClick = onCardClick,
         modifier = modifier
@@ -156,6 +167,23 @@ fun PlaygroundCard(
                     else LocalContentColor.current,
                 )
             }
+            IconButton(onClick = { showPlanDialog = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.outline_calendar_month_24),
+                    contentDescription = "Calendar",
+                    tint = LocalContentColor.current
+                )
+            }
+        }
+        if (showPlanDialog) {
+            PlanVisitDialog(
+                playgroundName = playground.name,
+                onDismiss = { showPlanDialog = false },
+                onConfirm = { dateMillis, hour, minute ->
+                    onPlanVisit(playground, dateMillis, hour, minute)
+                    showPlanDialog = false
+                },
+            )
         }
     }
 }

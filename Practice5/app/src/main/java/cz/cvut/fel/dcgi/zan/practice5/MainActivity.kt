@@ -91,6 +91,9 @@ fun PlaygroundApp() {
                         navController.navigate(PlaygroundDetailRoute(id))
                     },
                     onToggleFavourite = appState::toggleFavourite,
+                    onPlanVisit = { playground, dateMillis, hour, minute ->
+                        appState.addVisit(playground, dateMillis, hour, minute)
+                    }
                 )
             }
             composable<PlansRoute> {
