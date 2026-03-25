@@ -86,22 +86,15 @@ fun PlaygroundApp() {
         ) {
             composable<PlaygroundListRoute> {
                 PlaygroundListScreen(
-                    playgrounds = appState.playgrounds,
                     onNavigateToDetail = { id ->
                         navController.navigate(PlaygroundDetailRoute(id))
                     },
-                    onToggleFavourite = appState::toggleFavourite,
-                    onPlanVisit = { playground, dateMillis, hour, minute ->
-                        appState.addVisit(playground, dateMillis, hour, minute)
-                    }
+
                 )
             }
             composable<PlansRoute> {
                 PlansScreen(
-                    visits = appState.visits,
                     snackbarHostState = snackbarHostState,
-                    onDeleteVisit = appState::removeVisit,
-                    onRestoreVisit = {visit -> appState.restoreVisit(visit)}
                 )
             }
             composable<PlaygroundDetailRoute> { entry ->
@@ -110,9 +103,6 @@ fun PlaygroundApp() {
                 PlaygroundDetailScreen(
                     playground = playground,
                     onNavigateUp = { navController.navigateUp() },
-                    onPlanVisit = { dateMillis, hour, minute ->
-                        appState.addVisit(playground, dateMillis, hour, minute)
-                    },
                 )
             }
         }

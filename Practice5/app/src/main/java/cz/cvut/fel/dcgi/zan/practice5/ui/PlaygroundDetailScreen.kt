@@ -1,5 +1,6 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import cz.cvut.fel.dcgi.zan.practice5.R
 
@@ -23,8 +26,10 @@ import cz.cvut.fel.dcgi.zan.practice5.R
 fun PlaygroundDetailScreen(
     playground: Playground,
     onNavigateUp: () -> Unit,
-    onPlanVisit: (dateMillis: Long, hour: Int, minute: Int) -> Unit,
     modifier: Modifier = Modifier,
+    plansViewModel: PlansViewModel = viewModel(
+        viewModelStoreOwner = LocalActivity.current!! as ViewModelStoreOwner
+    ),
 ) {
     // ── State for Plan a visit dialog ─────────────────────────────────────────
     // TODO (Step 3.1): Add showPlanDialog state here
@@ -114,7 +119,7 @@ fun PlaygroundDetailScreen(
                 playgroundName = playground.name,
                 onDismiss = { showPlanDialog = false },
                 onConfirm = { dateMillis, hour, minute ->
-                    onPlanVisit(dateMillis, hour, minute)
+                    plansViewModel.addVisit(playground,dateMillis, hour, minute)
                     showPlanDialog = false
                 },
             )

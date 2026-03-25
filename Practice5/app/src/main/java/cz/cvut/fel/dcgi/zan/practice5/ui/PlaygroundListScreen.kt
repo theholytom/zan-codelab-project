@@ -1,6 +1,7 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
 import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,9 +20,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import cz.cvut.fel.dcgi.zan.practice5.R
+import cz.cvut.fel.dcgi.zan.practice5.ui.SampleData.playgrounds
 import kotlinx.coroutines.delay
 
 
@@ -29,11 +33,12 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PlaygroundListScreen(
-    playgrounds: List<Playground>,
+    viewModel: PlaygroundListViewModel = viewModel(),
     onNavigateToDetail: (Long) -> Unit,
-    onToggleFavourite: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    onPlanVisit: (Playground, Long, Int, Int) -> Unit
+    plansViewModel: PlansViewModel = viewModel(
+        viewModelStoreOwner = LocalActivity.current!! as ViewModelStoreOwner
+    ),
 ) {
     // ── Search query ──────────────────────────────────────────────────────────
     var query by rememberSaveable { mutableStateOf("") }
@@ -47,10 +52,11 @@ fun PlaygroundListScreen(
     var selectedEquipment by rememberSaveable { mutableStateOf(setOf(Equipment.SLIDE)) }
 
     // ── Derived list ──────────────────────────────────────────────────────────
-    val displayedPlaygrounds = playgrounds
+    val displayedPlaygrounds = viewModel.playgrounds
         .filter { it.name.contains(query, ignoreCase = true) }
         .filter { if (selectedTabIndex == 1) it.isFavourite else true }
         .filter { pg -> selectedEquipment.isEmpty() || selectedEquipment.all { it in pg.equipment } }
+
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -140,8 +146,10 @@ fun PlaygroundListScreen(
                 PlaygroundCard(
                     playground = playground,
                     onCardClick = { onNavigateToDetail(playground.id) },
-                    onFavouriteClick = { onToggleFavourite(playground.id) },
-                    onPlanVisit = onPlanVisit
+                    onFavouriteClick = { viewModel.toggleFavourite(playground.id) },
+                    onPlanVisit = { pg, dateMillis, hour, minute ->
+                        plansViewModel.addVisit(pg, dateMillis, hour, minute)
+                    },
                 )
             }
         }

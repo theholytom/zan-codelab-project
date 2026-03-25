@@ -1,5 +1,6 @@
 package cz.cvut.fel.dcgi.zan.practice5.ui
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 
@@ -21,12 +24,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlansScreen(
-    visits: List<PlannedVisit>,
+    viewModel: PlansViewModel = viewModel(
+        viewModelStoreOwner = LocalActivity.current!! as ViewModelStoreOwner
+    ),
     snackbarHostState: SnackbarHostState,
-    onDeleteVisit: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    onRestoreVisit: (PlannedVisit) -> Unit
 ) {
+
+    val visits = viewModel.visits
     // TODO (Step 6): Replace AlertDialog deletion with Snackbar + Undo
      val scope = rememberCoroutineScope()
 
@@ -53,7 +58,7 @@ fun PlansScreen(
                         visit = visit,
                         onDeleteClick = {
                             val removed = visits.find { it.id == visit.id }
-                            onDeleteVisit(visit.id)                        // remove from list
+                            viewModel.removeVisit(visit.id)                        // remove from list
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
                                     message     = "Visit deleted",
@@ -61,7 +66,7 @@ fun PlansScreen(
                                     duration    = SnackbarDuration.Short,
                                 )
                                 if (result == SnackbarResult.ActionPerformed && removed != null) {
-                                    onRestoreVisit(visit)
+                                    viewModel.restoreVisit(visit)
                                 }
                             }
                         },
