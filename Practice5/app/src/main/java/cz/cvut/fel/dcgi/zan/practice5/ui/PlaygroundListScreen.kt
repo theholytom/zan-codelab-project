@@ -33,65 +33,75 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PlaygroundListScreen(
-    viewModel: PlaygroundListViewModel = viewModel(),
     onNavigateToDetail: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: PlaygroundListViewModel = viewModel(),
     plansViewModel: PlansViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current!! as ViewModelStoreOwner
     ),
 ) {
-    // ── Search query ──────────────────────────────────────────────────────────
+    val uiState = viewModel.uiState
+
+    when (uiState) {
+        is PlaygroundListUiState.Loading -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is PlaygroundListUiState.Error -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = uiState.message,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = { viewModel.onEvent(PlaygroundListEvent.Retry) }) {
+                        Text("Retry")
+                    }
+                }
+            }
+        }
+
+        is PlaygroundListUiState.Content -> {
+            PlaygroundListContent(
+                playgrounds = uiState.playgrounds,
+                onNavigateToDetail = onNavigateToDetail,
+                onToggleFavourite = { id ->
+                    viewModel.onEvent(PlaygroundListEvent.ToggleFavourite(id))
+                },
+                onPlaygroundPlanVisit = { pg, dateMillis, hour, minute ->
+                    plansViewModel.addVisit(pg, dateMillis, hour, minute)
+                },
+                modifier = modifier,
+            )
+        }
+    }
+}
+
+// ── Content ──────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun PlaygroundListContent(
+    playgrounds: List<Playground>,
+    onNavigateToDetail: (Long) -> Unit,
+    onToggleFavourite: (Long) -> Unit,
+    onPlaygroundPlanVisit: (Playground, Long, Int, Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var query by rememberSaveable { mutableStateOf("") }
-
-    // ── Tab / filter state ────────────────────────────────────────────────────
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
+    var selectedEquipment by rememberSaveable { mutableStateOf(emptySet<Equipment>()) }
     val tabs = listOf("All", "Favourites")
-    var isLoading by remember { mutableStateOf(true) }
 
-    // ── Equipment filter ──────────────────────────────────────────────────────
-    var selectedEquipment by rememberSaveable { mutableStateOf(setOf(Equipment.SLIDE)) }
-
-    // ── Derived list ──────────────────────────────────────────────────────────
-    val displayedPlaygrounds = viewModel.playgrounds
+    val displayedPlaygrounds = playgrounds
         .filter { it.name.contains(query, ignoreCase = true) }
         .filter { if (selectedTabIndex == 1) it.isFavourite else true }
         .filter { pg -> selectedEquipment.isEmpty() || selectedEquipment.all { it in pg.equipment } }
 
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> Log.d("Lifecycle", "PlaygroundList: resumed")
-                Lifecycle.Event.ON_PAUSE -> Log.d("Lifecycle", "PlaygroundList: paused")
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            Log.d("Lifecycle", "PlaygroundList: disposed — observer removed")
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        Log.d("LaunchedEffect", "launched with isLoading=$isLoading")
-        delay(1500)
-        isLoading = false
-    }
-
-    if (isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else {
-        // SegmentedButtonRow + FilterChips + LazyColumn
-    }
-
     Column(modifier = modifier.fillMaxSize()) {
-
         // ── Search field (Step 1.1 / 1.2) ────────────────────────────────────
         OutlinedTextField(
             value = query,
@@ -146,9 +156,9 @@ fun PlaygroundListScreen(
                 PlaygroundCard(
                     playground = playground,
                     onCardClick = { onNavigateToDetail(playground.id) },
-                    onFavouriteClick = { viewModel.toggleFavourite(playground.id) },
+                    onFavouriteClick = { onToggleFavourite(playground.id) },
                     onPlanVisit = { pg, dateMillis, hour, minute ->
-                        plansViewModel.addVisit(pg, dateMillis, hour, minute)
+                        onPlaygroundPlanVisit(pg, dateMillis, hour, minute)
                     },
                 )
             }
