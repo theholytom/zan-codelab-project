@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlansScreen(
     viewModel: PlansViewModel = viewModel(
@@ -31,9 +30,59 @@ fun PlansScreen(
     modifier: Modifier = Modifier,
 ) {
 
-    val visits = viewModel.visits
-    // TODO (Step 6): Replace AlertDialog deletion with Snackbar + Undo
-     val scope = rememberCoroutineScope()
+    val uiState = viewModel.uiState
+
+    when (uiState) {
+        is PlansUiState.Loading -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is PlansUiState.Error -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = uiState.message,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = { viewModel.onEvent(PlansEvent.Retry) }) {
+                        Text("Retry")
+                    }
+                }
+            }
+        }
+
+        is PlansUiState.Content -> {
+            PlansContent(
+                visits = uiState.visits,
+                modifier = modifier,
+                onRemoveVisit = { id ->
+                    viewModel.onEvent(PlansEvent.RemoveVisit(id))
+                },
+                onRestoreVisit = { visit ->
+                    viewModel.onEvent(PlansEvent.RestoreVisit(visit))
+                },
+                snackbarHostState = snackbarHostState
+            )
+        }
+    }
+}
+
+// ── Plan Content ─────────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PlansContent(
+    modifier: Modifier = Modifier,
+    visits: List<PlannedVisit>,
+    onRemoveVisit: (Long) -> Unit,
+    onRestoreVisit: (PlannedVisit) -> Unit,
+    snackbarHostState: SnackbarHostState
+) {
+    val scope = rememberCoroutineScope()
 
     var sheetPlayground by remember { mutableStateOf<Playground?>(null) }
     val sheetState = rememberModalBottomSheetState()
@@ -58,7 +107,7 @@ fun PlansScreen(
                         visit = visit,
                         onDeleteClick = {
                             val removed = visits.find { it.id == visit.id }
-                            viewModel.removeVisit(visit.id)                        // remove from list
+                            onRemoveVisit(visit.id)                        // remove from list
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
                                     message     = "Visit deleted",
@@ -66,7 +115,7 @@ fun PlansScreen(
                                     duration    = SnackbarDuration.Short,
                                 )
                                 if (result == SnackbarResult.ActionPerformed && removed != null) {
-                                    viewModel.restoreVisit(visit)
+                                    onRestoreVisit(visit)
                                 }
                             }
                         },
@@ -86,8 +135,9 @@ fun PlansScreen(
             Spacer(Modifier.height(32.dp)) // padding above nav bar
         }
     }
-
 }
+
+
 
 // ── Plan card ─────────────────────────────────────────────────────────────────
 
