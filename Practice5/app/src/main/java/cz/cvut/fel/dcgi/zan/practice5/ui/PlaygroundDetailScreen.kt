@@ -24,7 +24,7 @@ import cz.cvut.fel.dcgi.zan.practice5.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaygroundDetailScreen(
-    playground: Playground,
+    viewModel: PlaygroundDetailViewModel = viewModel(),
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     plansViewModel: PlansViewModel = viewModel(
@@ -34,6 +34,7 @@ fun PlaygroundDetailScreen(
     // ── State for Plan a visit dialog ─────────────────────────────────────────
     // TODO (Step 3.1): Add showPlanDialog state here
     var showPlanDialog by rememberSaveable { mutableStateOf(false) }
+    val playground = viewModel.playground
 
     Scaffold(
         topBar = {

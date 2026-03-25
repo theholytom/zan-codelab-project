@@ -15,8 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import cz.cvut.fel.dcgi.zan.practice5.ui.AppState
 import cz.cvut.fel.dcgi.zan.practice5.ui.PlansRoute
 import cz.cvut.fel.dcgi.zan.practice5.ui.PlansScreen
 import cz.cvut.fel.dcgi.zan.practice5.ui.PlaygroundDetailRoute
@@ -40,7 +38,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PlaygroundApp() {
     val navController = rememberNavController()
-    val appState = remember { AppState() }
     val snackbarHostState = remember { SnackbarHostState() }
 
     val bottomNavItems = listOf(
@@ -97,11 +94,8 @@ fun PlaygroundApp() {
                     snackbarHostState = snackbarHostState,
                 )
             }
-            composable<PlaygroundDetailRoute> { entry ->
-                val route = entry.toRoute<PlaygroundDetailRoute>()
-                val playground = appState.playgrounds.first { it.id == route.playgroundId }
+            composable<PlaygroundDetailRoute> {
                 PlaygroundDetailScreen(
-                    playground = playground,
                     onNavigateUp = { navController.navigateUp() },
                 )
             }
