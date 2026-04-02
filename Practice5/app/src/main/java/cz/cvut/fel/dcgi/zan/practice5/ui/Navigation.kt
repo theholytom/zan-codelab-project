@@ -11,3 +11,5 @@ import kotlinx.serialization.Serializable
 @Serializable object PlaygroundListRoute
 @Serializable object PlansRoute
 @Serializable data class PlaygroundDetailRoute(val playgroundId: Long)
+
+@Serializable data object CoroutinePlaygroundRoute

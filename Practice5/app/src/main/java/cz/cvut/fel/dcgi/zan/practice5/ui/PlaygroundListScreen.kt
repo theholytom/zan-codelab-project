@@ -2,15 +2,21 @@ package cz.cvut.fel.dcgi.zan.practice5.ui
 
 import android.util.Log
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -22,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import cz.cvut.fel.dcgi.zan.practice5.R
@@ -40,9 +47,9 @@ fun PlaygroundListScreen(
         viewModelStoreOwner = LocalActivity.current!! as ViewModelStoreOwner
     ),
 ) {
-    val uiState = viewModel.uiState
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    when (uiState) {
+    when (val state = uiState) {
         is PlaygroundListUiState.Loading -> {
             Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -53,7 +60,7 @@ fun PlaygroundListScreen(
             Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = uiState.message,
+                        text = state.message,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -67,14 +74,9 @@ fun PlaygroundListScreen(
 
         is PlaygroundListUiState.Content -> {
             PlaygroundListContent(
-                playgrounds = uiState.playgrounds,
+                uiState = state,
+                onEvent = viewModel::onEvent,
                 onNavigateToDetail = onNavigateToDetail,
-                onToggleFavourite = { id ->
-                    viewModel.onEvent(PlaygroundListEvent.ToggleFavourite(id))
-                },
-                onPlaygroundPlanVisit = { pg, dateMillis, hour, minute ->
-                    plansViewModel.addVisit(pg, dateMillis, hour, minute)
-                },
                 modifier = modifier,
             )
         }
@@ -83,86 +85,133 @@ fun PlaygroundListScreen(
 
 // ── Content ──────────────────────────────────────────────────────────────────────
 
+// val tabs = listOf("All", "Favourites")
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PlaygroundListContent(
-    playgrounds: List<Playground>,
+    uiState: PlaygroundListUiState.Content,
+    onEvent: (PlaygroundListEvent) -> Unit,
     onNavigateToDetail: (Long) -> Unit,
-    onToggleFavourite: (Long) -> Unit,
-    onPlaygroundPlanVisit: (Playground, Long, Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
-    var selectedEquipment by rememberSaveable { mutableStateOf(emptySet<Equipment>()) }
-    val tabs = listOf("All", "Favourites")
-
-    val displayedPlaygrounds = playgrounds
-        .filter { it.name.contains(query, ignoreCase = true) }
-        .filter { if (selectedTabIndex == 1) it.isFavourite else true }
-        .filter { pg -> selectedEquipment.isEmpty() || selectedEquipment.all { it in pg.equipment } }
-
-    Column(modifier = modifier.fillMaxSize()) {
-        // ── Search field (Step 1.1 / 1.2) ────────────────────────────────────
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            label = { Text("Search") },
-            singleLine = true,
+    Scaffold(
+        topBar = {
+            if (uiState.isSelectionMode) {
+                SelectionTopBar(
+                    selectedCount = uiState.selectedIds.size,
+                    onClearSelection = { onEvent(PlaygroundListEvent.ClearSelection) },
+                    onSelectAll = { onEvent(PlaygroundListEvent.SelectAll) },
+                    onDeleteSelected = { onEvent(PlaygroundListEvent.DeleteSelected) },
+                    onFavouriteSelected = { onEvent(PlaygroundListEvent.FavouriteSelected) },
+                )
+            } else {
+                // Search field as top bar when not in selection mode
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { onEvent(PlaygroundListEvent.SearchQueryChanged(it)) },
+                    label = { Text("Search") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+        },
+    ) { innerPadding ->
+        val pullToRefreshState = rememberPullToRefreshState()
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        )
-
-        // ── Tab row (Step 1.3) ────────────────────────────────────────────────
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-            tabs.forEachIndexed { index, label ->
-                SegmentedButton(
-                    selected = selectedTabIndex == index,
-                    onClick  = { selectedTabIndex = index },
-                    shape    = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
-                    label    = { Text(label) },
-                )
-            }
-        }
-
-        // ── Filter chips (Step 4) ─────────────────────────────────────────────
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                .padding(innerPadding)
+                .fillMaxSize()
+                .pullToRefresh(
+                    isRefreshing = uiState.isRefreshing,
+                    state = pullToRefreshState,
+                    onRefresh = { onEvent(PlaygroundListEvent.Refresh) },
+                ),
         ) {
-            items(Equipment.entries) { item ->
-                FilterChip(
-                    selected = item in selectedEquipment,
-                    onClick  = {
-                        selectedEquipment = if (item in selectedEquipment)
-                            selectedEquipment - item
-                        else
-                            selectedEquipment + item
-                    },
-                    label = { Text(item.label()) },
-                    leadingIcon = if (item in selectedEquipment) {
-                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                    } else null,
-                )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+
+                val tabs = listOf("All", "Favourites")
+
+                // ── Tab row (Step 1.3) ────────────────────────────────────────────────
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                ) {
+                    tabs.forEachIndexed { index, label ->
+                        val selectedIndex: Int = if (uiState.showFavouritesOnly) 1 else 0
+                        SegmentedButton(
+                            selected = selectedIndex == index,
+                            onClick = { onEvent(PlaygroundListEvent.ToggleFavouritesFilter(!uiState.showFavouritesOnly)) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
+                            label = { Text(label) },
+                        )
+                    }
+                }
+
+                // ── Filter chips (Step 4) ─────────────────────────────────────────────
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    items(Equipment.entries) { item ->
+                        FilterChip(
+                            selected = item in uiState.selectedEquipment,
+                            onClick = {
+                                onEvent(PlaygroundListEvent.ToggleEquipmentFilter(item))
+                            },
+                            label = { Text(item.label()) },
+                            leadingIcon = if (item in uiState.selectedEquipment) {
+                                {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            } else null,
+                        )
+                    }
+                }
+
+                // ── List ──────────────────────────────────────────────────────────────
+                LazyColumn(
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(uiState.playgrounds, key = { it.id }) { playground ->
+                        val isSelected = playground.id in uiState.selectedIds
+
+                        PlaygroundCard(
+                            playground = playground,
+                            isSelected = isSelected,
+                            isSelectionMode = uiState.isSelectionMode,
+                            onCardClick = {
+                                if (uiState.isSelectionMode) {
+                                    onEvent(PlaygroundListEvent.ToggleSelection(playground.id))
+                                } else {
+                                    onNavigateToDetail(playground.id)
+                                }
+                            },
+                            onLongClick = {
+                                onEvent(PlaygroundListEvent.ToggleSelection(playground.id))
+                            },
+                            onFavouriteClick = {
+                                onEvent(PlaygroundListEvent.ToggleFavourite(playground.id))
+                            },
+                        )
+                    }
+                }
             }
+            PullToRefreshDefaults.Indicator(
+                state = pullToRefreshState,
+                isRefreshing = uiState.isRefreshing,
+                modifier = Modifier.align(Alignment.TopCenter),
+            )
         }
 
-        // ── List ──────────────────────────────────────────────────────────────
-        LazyColumn(
-            contentPadding = PaddingValues(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            items(displayedPlaygrounds, key = { it.id }) { playground ->
-                PlaygroundCard(
-                    playground = playground,
-                    onCardClick = { onNavigateToDetail(playground.id) },
-                    onFavouriteClick = { onToggleFavourite(playground.id) },
-                    onPlanVisit = { pg, dateMillis, hour, minute ->
-                        onPlaygroundPlanVisit(pg, dateMillis, hour, minute)
-                    },
-                )
-            }
-        }
     }
 }
 
@@ -171,25 +220,44 @@ private fun PlaygroundListContent(
 @Composable
 fun PlaygroundCard(
     playground: Playground,
+    isSelected: Boolean = false,
+    isSelectionMode: Boolean = false,
     onCardClick: () -> Unit,
+    onLongClick: () -> Unit = {},
     onFavouriteClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onPlanVisit: (Playground, Long, Int, Int) -> Unit
+    //onPlanVisit: (Playground, Long, Int, Int) -> Unit
 ) {
 
     var showPlanDialog by rememberSaveable { mutableStateOf(false) }
 
     Card(
-        onClick = onCardClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .combinedClickable(
+                onClick = onCardClick,
+                onLongClick = onLongClick,
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.surfaceVariant,
+        ),
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(16.dp),
         ) {
+            // Show checkbox in selection mode
+            if (isSelectionMode) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onCardClick() },
+                )
+                Spacer(Modifier.width(8.dp))
+            }
             AsyncImage(
                 model = playground.imageUrl,
                 contentDescription = playground.name,
@@ -232,10 +300,43 @@ fun PlaygroundCard(
                 playgroundName = playground.name,
                 onDismiss = { showPlanDialog = false },
                 onConfirm = { dateMillis, hour, minute ->
-                    onPlanVisit(playground, dateMillis, hour, minute)
+                    //onPlanVisit(playground, dateMillis, hour, minute)
                     showPlanDialog = false
                 },
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectionTopBar(
+    selectedCount: Int,
+    onClearSelection: () -> Unit,
+    onSelectAll: () -> Unit,
+    onDeleteSelected: () -> Unit,
+    onFavouriteSelected: () -> Unit,
+) {
+    TopAppBar(
+        title = { Text("$selectedCount selected") },
+        navigationIcon = {
+            IconButton(onClick = onClearSelection) {
+                Icon(Icons.Default.Close, contentDescription = "Clear selection")
+            }
+        },
+        actions = {
+            IconButton(onClick = onSelectAll) {
+                Icon(painterResource(R.drawable.select_all_24px), contentDescription = "Select all")
+            }
+            IconButton(onClick = onFavouriteSelected) {
+                Icon(Icons.Default.Favorite, contentDescription = "Favourite selected")
+            }
+            IconButton(onClick = onDeleteSelected) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete selected")
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
+    )
 }
